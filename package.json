@@ -20,7 +20,8 @@
     "test": "mocha --compilers js:babel-register"
   },
   "dependencies": {
-    "better-clone": "^1.0.2"
+    "better-clone": "^1.0.2",
+    "event-emitter-mixin": "^0.1.7"
   },
   "devDependencies": {
     "babel-cli": "^6.4.0",

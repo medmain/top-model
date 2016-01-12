@@ -1,7 +1,9 @@
 'use strict';
 
+import EventEmitter from 'event-emitter-mixin';
 import { customClone } from 'better-clone';
 
+@EventEmitter
 export class TopModel {
   constructor() {
   }
