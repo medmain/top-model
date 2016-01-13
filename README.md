@@ -1,6 +1,6 @@
 # TopModel [![Build Status](https://travis-ci.org/object-layer/top-model.svg?branch=master)](https://travis-ci.org/object-layer/top-model)
 
-Base class providing attributes, validation and serialization.
+Base class providing typed properties, validation and serialization.
 
 ## Installation
 
