@@ -105,7 +105,7 @@ export class TopModel extends EventEmitterMixin() {
 
 export function field(type, options) {
   return function(target, name, descriptor) {
-    target.setField(name, type, options);
+    TopModel.prototype.setField.call(target, name, type, options);
     delete descriptor.initializer;
     descriptor.get = function() {
       return this.getFieldValue(name);

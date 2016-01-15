@@ -38,6 +38,19 @@ describe('TopModel', function() {
     assert.deepEqual(hero.serialize(), { name: 'Manu', power: 'invisible' });
   });
 
+  it('should handle model mixins', function() {
+    let Power = (superclass = function() {}) => class extends superclass {
+      @field(String) power;
+    };
+
+    class Hero extends Power(TopModel) {
+      @field(String) name;
+    }
+
+    let hero = new Hero({ name: 'Manu', power: 'fly' });
+    assert.deepEqual(hero.serialize(), { name: 'Manu', power: 'fly' });
+  });
+
   it('should handle serialization', function() {
     class Model extends TopModel {
       @field(Boolean) boolean;
