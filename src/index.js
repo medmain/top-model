@@ -1,17 +1,17 @@
 'use strict';
 
 import util from 'util';
-import EventEmitter from 'event-emitter-mixin';
+import EventEmitterMixin from 'event-emitter-mixin';
 import { customClone } from 'better-clone';
 import Field from './field';
 
-@EventEmitter
-export class TopModel {
+export class TopModel extends EventEmitterMixin() {
   static unserialize(json) {
     return new (this)(json, { useDefaultValues: false });
   }
 
   constructor(value, options) {
+    super();
     this.setValue(value, options);
     if ((options && options.useDefaultValues) !== false) {
       this.applyDefaultValues();
