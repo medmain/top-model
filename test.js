@@ -1,6 +1,7 @@
 'use strict';
 
 import { assert } from 'chai';
+import AbstractDate from 'abstract-date';
 import { TopModel, field, on } from './src';
 
 describe('TopModel', function() {
@@ -236,5 +237,52 @@ describe('TopModel', function() {
     person = new Person({ name: 'Dupont', age: 30, status: 'alive' });
     validity = person.checkValidity();
     assert.isTrue(validity.valid);
+  });
+
+  it('should handle custom types', function() {
+    class Person extends TopModel {
+      @field(String) firstName;
+      @field(String) lastName;
+      @field(AbstractDate) birthday;
+    }
+
+    let person = new Person({
+      firstName: 'Manuel',
+      lastName: 'Vila',
+      birthday: '1972-09-25T00:00:00.000'
+    });
+    assert.instanceOf(person.birthday, AbstractDate);
+    assert.deepEqual(
+      person.serialize(),
+      {
+        firstName: 'Manuel',
+        lastName: 'Vila',
+        birthday: '1972-09-25T00:00:00.000'
+      }
+    );
+    person.birthday = '1972-09-25T10:07:00.000';
+    assert.instanceOf(person.birthday, AbstractDate);
+    assert.equal(person.birthday.toJSON(), '1972-09-25T10:07:00.000');
+    person.birthday = undefined;
+    assert.isUndefined(person.birthday);
+
+    person = new Person({ birthday: undefined });
+    assert.isUndefined(person.birthday);
+
+    person = new Person();
+    assert.isUndefined(person.birthday);
+  });
+
+  it('should handle custom types inside an array', function() {
+    class Calendar extends TopModel {
+      @field(Array) dates;
+    }
+
+    let calendar = new Calendar({
+      dates: [new AbstractDate('1972-09-25T00:00:00.000')]
+    });
+    assert.instanceOf(calendar.dates[0], AbstractDate);
+    assert.equal(calendar.dates[0].toString(), '1972-09-25T00:00:00.000');
+    assert.deepEqual(calendar.serialize(), { dates: ['1972-09-25T00:00:00.000'] });
   });
 });
