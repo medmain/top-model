@@ -1,15 +1,18 @@
 'use strict';
 
 import util from 'util';
-import EventEmitterMixin from 'event-emitter-mixin';
+import { EventEmitterMixin } from 'event-emitter-mixin';
 import { customClone } from 'better-clone';
 import Field from './field';
+import { Validation, validator } from './validation';
 
-export class TopModel extends EventEmitterMixin() {
+export class TopModel extends Validation(EventEmitterMixin()) {
   static unserialize(json) {
     return new (this)(json, { useDefaultValues: false });
   }
 
+  // Options:
+  //   useDefaultValues (default: true)
   constructor(value, options) {
     super();
     this.setValue(value, options);
@@ -101,6 +104,23 @@ export class TopModel extends EventEmitterMixin() {
     let json = this.serialize();
     return util.inspect(json, { depth });
   }
+
+  @validator modelValidator(model, parentPath) {
+    let reasons = [];
+    model.forEachField(function(field, name) {
+      let val = model.getFieldValue(name);
+      let path = parentPath ? parentPath + '.' + name : name;
+      let validity = field.checkValidity(val, path);
+      if (!validity.valid) {
+        reasons = reasons.concat(validity.reasons);
+      }
+    });
+    if (reasons.length) {
+      return { valid: false, reasons };
+    } else {
+      return { valid: true };
+    }
+  }
 }
 
 export function field(type, options) {
@@ -116,5 +136,7 @@ export function field(type, options) {
     };
   };
 }
+
+export { on } from 'event-emitter-mixin';
 
 export default TopModel;

@@ -1,7 +1,7 @@
 'use strict';
 
 import { assert } from 'chai';
-import { TopModel, field } from './src';
+import { TopModel, field, on } from './src';
 
 describe('TopModel', function() {
   it('should handle simple models', function() {
@@ -128,5 +128,113 @@ describe('TopModel', function() {
 
     person = Person.unserialize({ name: 'Dupont' });
     assert.deepEqual(person.serialize(), { name: 'Dupont' });
+  });
+
+  it('should emit didChange events', function() {
+    let didChangeCount;
+
+    class Person extends TopModel {
+      @field(String) firstName;
+      @field(String) lastName;
+      @on didChange() {
+        didChangeCount++;
+      }
+    }
+
+    let person;
+
+    didChangeCount = 0;
+    person = new Person();
+    assert.equal(didChangeCount, 0);
+
+    didChangeCount = 0;
+    person = new Person({ lastName: 'Dupont' });
+    assert.equal(didChangeCount, 1);
+    person.lastName = 'Dupont';
+    assert.equal(didChangeCount, 1);
+    person.lastName = 'Durand';
+    assert.equal(didChangeCount, 2);
+    person.setValue({ lastName: 'Dupas' });
+    assert.equal(didChangeCount, 3);
+
+    didChangeCount = 0;
+    person = new Person({ firstName: 'Jean', lastName: 'Dupont' });
+    assert.equal(didChangeCount, 1);
+    person.firstName = 'Jean';
+    assert.equal(didChangeCount, 1);
+    person.firstName = 'Eric';
+    assert.equal(didChangeCount, 2);
+    person.setValue({ lastName: 'Durand' });
+    assert.equal(didChangeCount, 3);
+    person.setValue({ firstName: 'Joe', lastName: 'Dupont' });
+    assert.equal(didChangeCount, 4);
+
+    didChangeCount = 0;
+    person = Person.unserialize({ firstName: 'Jean', lastName: 'Dupont' });
+    assert.equal(didChangeCount, 1);
+  });
+
+  it('should handle value replacement', function() {
+    class Person extends TopModel {
+      @field(String) firstName;
+      @field(String) lastName;
+    }
+
+    let person;
+
+    person = new Person({ firstName: 'Jean', lastName: 'Dupont' });
+    person.setValue(undefined);
+    assert.deepEqual(person.serialize(), {});
+
+    person = new Person({ firstName: 'Jean', lastName: 'Dupont' });
+    person.setValue({});
+    assert.deepEqual(person.serialize(), {});
+
+    person = new Person({ firstName: 'Jean', lastName: 'Dupont' });
+    person.setValue({ lastName: 'Durand' });
+    assert.deepEqual(person.serialize(), { lastName: 'Durand' });
+  });
+
+  it('should handle validation', function() {
+    class Person extends TopModel {
+      @field(String, { validators: 'filled' }) name;
+      @field(Number, { validators: 'positive' }) age;
+      @field(String, {
+        validators: [
+          function validStatus(status) {
+            return status === 'alive' || status === 'dead';
+          }
+        ]
+      }) status;
+    }
+
+    let person, validity;
+
+    person = new Person();
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 3);
+
+    person = new Person({ name: '', age: 0, status: '' });
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 3);
+
+    person = new Person({ name: 'Dupont', age: -3, status: 'unknown' });
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 2);
+
+    person = new Person({ name: 'Dupont', age: 30, status: 'unknown' });
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 1);
+    assert.deepEqual(validity.reasons[0], {
+      failedValidator: 'validStatus', path: 'status'
+    });
+
+    person = new Person({ name: 'Dupont', age: 30, status: 'alive' });
+    validity = person.checkValidity();
+    assert.isTrue(validity.valid);
   });
 });

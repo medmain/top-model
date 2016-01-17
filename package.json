@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "better-clone": "^1.0.2",
-    "event-emitter-mixin": "^0.3.0"
+    "event-emitter-mixin": "^0.3.0",
+    "fn-name": "^2.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.4.0",

@@ -2,9 +2,12 @@
 
 import { cloneDeep } from 'better-clone';
 import { TopModel } from './';
+import { Validation } from './validation';
 
-export class Field {
+export class Field extends Validation() {
   constructor(name, type, options) {
+    super();
+
     if (typeof name !== 'string' || !name) {
       throw new Error('\'name\' parameter is missing');
     }
@@ -23,7 +26,10 @@ export class Field {
       if (key === 'converter') this.convertValue = val;
       else if (key === 'serializer') this.serializeValue = val;
       else if (key === 'defaultValue') this.defaultValue = val;
-      else throw new Error('Option \'' + key + '\' is unknown');
+      else if (key === 'validators') {
+        if (!Array.isArray(val)) val = [val];
+        val.forEach(this.addValidator, this);
+      } else throw new Error('Option \'' + key + '\' is unknown');
     }
   }
 }
