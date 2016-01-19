@@ -41,6 +41,27 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     this._fields[name] = field;
   }
 
+  defineField(name, type, options, decoratorDescriptor) {
+    this.setField(name, type, options);
+    let descriptor;
+    if (decoratorDescriptor) {
+      delete decoratorDescriptor.initializer; // TODO: check if this is still required
+      descriptor = decoratorDescriptor;
+    } else {
+      descriptor = {};
+    }
+    descriptor.get = function() {
+      return this.getFieldValue(name);
+    };
+    descriptor.set = function(val) {
+      if (this.setFieldValue(name, val)) this.emit('didChange');
+      return this.getFieldValue(name);
+    };
+    if (!decoratorDescriptor) {
+      Object.defineProperty(this, name, descriptor);
+    }
+  }
+
   forEachField(fn, thisArg) {
     for (let name in this._fields) {
       let field = this._fields[name];
@@ -125,15 +146,7 @@ export class TopModel extends Validation(EventEmitterMixin()) {
 
 export function field(type, options) {
   return function(target, name, descriptor) {
-    TopModel.prototype.setField.call(target, name, type, options);
-    delete descriptor.initializer;
-    descriptor.get = function() {
-      return this.getFieldValue(name);
-    };
-    descriptor.set = function(val) {
-      if (this.setFieldValue(name, val)) this.emit('didChange');
-      return this.getFieldValue(name);
-    };
+    TopModel.prototype.defineField.call(target, name, type, options, descriptor);
   };
 }
 
