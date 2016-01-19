@@ -7,10 +7,6 @@ import Field from './field';
 import { Validation, validator } from './validation';
 
 export class TopModel extends Validation(EventEmitterMixin()) {
-  static unserialize(json) {
-    return new (this)(json, { useDefaultValues: false });
-  }
-
   // Options:
   //   useDefaultValues (default: true)
   constructor(value, options) {
@@ -19,6 +15,10 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     if ((options && options.useDefaultValues) !== false) {
       this.applyDefaultValues();
     }
+  }
+
+  static unserialize(json) {
+    return new (this)(json, { useDefaultValues: false });
   }
 
   clone() {
