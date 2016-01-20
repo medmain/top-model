@@ -97,6 +97,10 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     return this;
   }
 
+  replaceValue(value) {
+    this.setValue(value, { useDefaultValues: false });
+  }
+
   applyDefaultValues() {
     this.forEachField(function(field, name) {
       let val = field.defaultValue;
