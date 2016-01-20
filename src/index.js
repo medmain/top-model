@@ -39,10 +39,11 @@ export class TopModel extends Validation(EventEmitterMixin()) {
       this._fields = Object.create(this._fields || null);
     }
     this._fields[name] = field;
+    return field;
   }
 
   defineField(name, type, options, decoratorDescriptor) {
-    this.setField(name, type, options);
+    let field = this.setField(name, type, options);
     let descriptor;
     if (decoratorDescriptor) {
       delete decoratorDescriptor.initializer; // TODO: check if this is still required
@@ -60,6 +61,7 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     if (!decoratorDescriptor) {
       Object.defineProperty(this, name, descriptor);
     }
+    return field;
   }
 
   forEachField(fn, thisArg) {
