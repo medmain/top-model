@@ -21,6 +21,14 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     return new (this)(json, { useDefaultValues: false });
   }
 
+  static getName() {
+    return this.displayName || this.name;
+  }
+
+  static setName(name) {
+    this.displayName = name;
+  }
+
   clone() {
     return this.constructor.unserialize(this.serialize());
   }
