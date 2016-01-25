@@ -135,6 +135,14 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     return this.serialize();
   }
 
+  specialize(klass) {
+    if (!klass) throw new Error('class parameter is missing');
+    if (!this.constructor.isPrototypeOf(klass)) {
+      throw new Error('Cannot transpose from a subclass to superclass');
+    }
+    Object.setPrototypeOf(this, klass.prototype);
+  }
+
   inspect(depth = 5) {
     let json = this.serialize();
     return util.inspect(json, { depth });

@@ -285,4 +285,23 @@ describe('TopModel', function() {
     assert.equal(calendar.dates[0].toString(), '1972-09-25T00:00:00.000');
     assert.deepEqual(calendar.serialize(), { dates: ['1972-09-25T00:00:00.000'] });
   });
+
+  it('should handle specialization', function() {
+    class Element extends TopModel {
+      @field(String) id;
+    }
+
+    class Person extends Element {
+      @field(String) name;
+    }
+
+    let element = new Element();
+    assert.isTrue(element instanceof Element);
+    assert.isFalse(element instanceof Person);
+    element.specialize(Person);
+    assert.isTrue(element instanceof Person);
+    assert.throws(function() {
+      element.specialize(Element);
+    });
+  });
 });
