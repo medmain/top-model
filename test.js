@@ -286,7 +286,7 @@ describe('TopModel', function() {
     assert.deepEqual(calendar.serialize(), { dates: ['1972-09-25T00:00:00.000'] });
   });
 
-  it('should handle specialization', function() {
+  it('should handle specialization and mutation', function() {
     class Element extends TopModel {
       @field(String) id;
     }
@@ -295,13 +295,32 @@ describe('TopModel', function() {
       @field(String) name;
     }
 
-    let element = new Element();
+    let element, element2;
+
+    element = new Element({ id: 'abc123' });
     assert.isTrue(element instanceof Element);
     assert.isFalse(element instanceof Person);
     element.specialize(Person);
     assert.isTrue(element instanceof Person);
+    assert.equal(element.id, 'abc123');
     assert.throws(function() {
       element.specialize(Element);
+    });
+
+    element = new Element({ id: 'abc123' });
+    element2 = new Element({ id: 'xyz789' });
+    element2.mutate(element);
+    assert.isTrue(element2 instanceof Element);
+    assert.equal(element2.id, 'abc123');
+
+    element = new Element({ id: 'abc123' });
+    let person = new Person({ id: 'xyz789', name: 'Manu' });
+    element.mutate(person);
+    assert.isTrue(element instanceof Person);
+    assert.deepEqual(element.serialize(), { id: 'xyz789', name: 'Manu' });
+    assert.throws(function() {
+      element2 = new Element({ id: 'xyz789' });
+      element.mutate(element2);
     });
   });
 });

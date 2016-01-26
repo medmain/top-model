@@ -136,11 +136,19 @@ export class TopModel extends Validation(EventEmitterMixin()) {
   }
 
   specialize(klass) {
-    if (!klass) throw new Error('class parameter is missing');
+    if (this.constructor === klass) return;
+    if (!klass) throw new Error('\'klass\' parameter is missing');
+    if (!(TopModel.isPrototypeOf(klass))) throw new Error('\'klass\' parameter should be subclass of TopModel');
     if (!this.constructor.isPrototypeOf(klass)) {
       throw new Error('Cannot transpose from a subclass to superclass');
     }
     Object.setPrototypeOf(this, klass.prototype);
+  }
+
+  mutate(other, klass = other.constructor) {
+    if (!other) throw new Error('\'other\' parameter is missing');
+    this.specialize(klass);
+    this.replaceValue(other);
   }
 
   inspect(depth = 5) {
