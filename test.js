@@ -300,27 +300,27 @@ describe('TopModel', function() {
     element = new Element({ id: 'abc123' });
     assert.isTrue(element instanceof Element);
     assert.isFalse(element instanceof Person);
-    element.specialize(Person);
+    element.specialize(Person, true);
     assert.isTrue(element instanceof Person);
     assert.equal(element.id, 'abc123');
     assert.throws(function() {
-      element.specialize(Element);
+      element.specialize(Element, true);
     });
 
     element = new Element({ id: 'abc123' });
     element2 = new Element({ id: 'xyz789' });
-    element2.mutate(element);
+    element2.mutate(element, undefined, true);
     assert.isTrue(element2 instanceof Element);
     assert.equal(element2.id, 'abc123');
 
     element = new Element({ id: 'abc123' });
     let person = new Person({ id: 'xyz789', name: 'Manu' });
-    element.mutate(person);
+    element.mutate(person, undefined, true);
     assert.isTrue(element instanceof Person);
     assert.deepEqual(element.serialize(), { id: 'xyz789', name: 'Manu' });
     assert.throws(function() {
       element2 = new Element({ id: 'xyz789' });
-      element.mutate(element2);
+      element.mutate(element2, undefined, true);
     });
   });
 });
