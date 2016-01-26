@@ -1,6 +1,6 @@
 {
   "name": "top-model",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Base class providing typed properties, validation and serialization",
   "author": "Manuel Vila <mvila@3base.com>",
   "license": "MIT",
