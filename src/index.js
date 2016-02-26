@@ -181,5 +181,6 @@ export function field(type, options) {
 }
 
 export { on } from 'event-emitter-mixin';
+export { validator } from './validation';
 
 export default TopModel;
