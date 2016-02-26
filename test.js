@@ -198,7 +198,7 @@ describe('TopModel', function() {
 
   it('should handle validation', function() {
     class Person extends TopModel {
-      @field(String, { validators: 'filled' }) name;
+      @field(String, { validators: ['filled', 'minLength(2)', 'match(/^[a-z]+$/i)'] }) name;
       @field(Number, { validators: 'positive' }) age;
       @field(String, {
         validators: [
@@ -214,12 +214,12 @@ describe('TopModel', function() {
     person = new Person();
     validity = person.checkValidity();
     assert.isFalse(validity.valid);
-    assert.lengthOf(validity.reasons, 3);
+    assert.lengthOf(validity.reasons, 5);
 
     person = new Person({ name: '', age: 0, status: '' });
     validity = person.checkValidity();
     assert.isFalse(validity.valid);
-    assert.lengthOf(validity.reasons, 3);
+    assert.lengthOf(validity.reasons, 5);
 
     person = new Person({ name: 'Dupont', age: -3, status: 'unknown' });
     validity = person.checkValidity();
@@ -232,6 +232,22 @@ describe('TopModel', function() {
     assert.lengthOf(validity.reasons, 1);
     assert.deepEqual(validity.reasons[0], {
       failedValidator: 'validStatus', path: 'status'
+    });
+
+    person = new Person({ name: 'D', age: 30, status: 'alive' });
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 1);
+    assert.deepEqual(validity.reasons[0], {
+      failedValidator: 'minLength(2)', path: 'name'
+    });
+
+    person = new Person({ name: 'R2D2', age: 30, status: 'alive' });
+    validity = person.checkValidity();
+    assert.isFalse(validity.valid);
+    assert.lengthOf(validity.reasons, 1);
+    assert.deepEqual(validity.reasons[0], {
+      failedValidator: 'match(/^[a-z]+$/i)', path: 'name'
     });
 
     person = new Person({ name: 'Dupont', age: 30, status: 'alive' });
