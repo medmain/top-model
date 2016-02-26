@@ -95,6 +95,13 @@ export class TopModel extends Validation(EventEmitterMixin()) {
     return true;
   }
 
+  checkFieldValidity(name) {
+    let field = this.getField(name);
+    if (!field) throw new Error(`Field '${name}' is undefined`);
+    let value = this.getFieldValue(name);
+    return field.checkValidity(value);
+  }
+
   setValue(value, options) {
     let hasChanged;
     this.forEachField(function(field, name) {
