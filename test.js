@@ -356,6 +356,9 @@ describe('TopModel', function() {
       @field(Person) boss;
     }
 
+    let emptyCompany = new Company();
+    assert.isFalse(emptyCompany.isEqualTo(undefined));
+
     let company1 = new Company({
       name: 'Cool Ltd',
       boss: {

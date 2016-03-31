@@ -144,8 +144,9 @@ export class TopModel extends Validation(EventEmitterMixin()) {
   }
 
   isEqualTo(other) {
+    if (other == null) return false;
     if (this === other) return true;
-    if (other != null && typeof other.toJSON === 'function') other = other.toJSON();
+    if (typeof other.toJSON === 'function') other = other.toJSON();
     return isEqual(this.serialize(), other);
   }
 
