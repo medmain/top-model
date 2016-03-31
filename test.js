@@ -255,6 +255,50 @@ describe('TopModel', function() {
     assert.isTrue(validity.valid);
   });
 
+  it('should handle nested model', function() {
+    class Person extends TopModel {
+      @field(String) name;
+    }
+
+    class Company extends TopModel {
+      @field(String) name;
+      @field(Person) boss;
+    }
+
+    let company;
+
+    company = new Company({
+      name: 'Cool Ltd'
+    });
+    assert.isUndefined(company.boss);
+    assert.deepEqual(company.serialize(), { name: 'Cool Ltd' });
+
+    company.boss = new Person();
+    assert.deepEqual(company.boss.serialize(), {});
+
+    company.boss.name = 'John Smith';
+    assert.deepEqual(company.boss.serialize(), { name: 'John Smith' });
+
+    company.boss = { name: 'John Durand' };
+    assert.deepEqual(company.boss.serialize(), { name: 'John Durand' });
+
+    assert.deepEqual(
+      company.serialize(),
+      { name: 'Cool Ltd', boss: { name: 'John Durand' } }
+    );
+
+    company = new Company({
+      name: 'Hype Ltd',
+      boss: {
+        name: 'Jaques Dupont'
+      }
+    });
+    assert.deepEqual(
+      company.serialize(),
+      { name: 'Hype Ltd', boss: { name: 'Jaques Dupont' } }
+    );
+  });
+
   it('should handle custom types', function() {
     class Person extends TopModel {
       @field(String) firstName;
@@ -300,6 +344,44 @@ describe('TopModel', function() {
     assert.instanceOf(calendar.dates[0], AbstractDate);
     assert.equal(calendar.dates[0].toString(), '1972-09-25T00:00:00.000');
     assert.deepEqual(calendar.serialize(), { dates: ['1972-09-25T00:00:00.000'] });
+  });
+
+  it('should handle comparison', function() {
+    class Person extends TopModel {
+      @field(String) name;
+    }
+
+    class Company extends TopModel {
+      @field(String) name;
+      @field(Person) boss;
+    }
+
+    let company1 = new Company({
+      name: 'Cool Ltd',
+      boss: {
+        name: 'Jaques Dupont'
+      }
+    });
+    assert.isFalse(company1.isEqualTo(undefined));
+    assert.isTrue(company1.isEqualTo(company1));
+
+    let company2 = new Company({
+      name: 'Cool Ltd',
+      boss: {
+        name: 'Jaques Durand'
+      }
+    });
+    assert.isFalse(company2.isEqualTo(company1));
+
+    company2.boss.name = 'Jaques Dupont';
+    assert.isTrue(company2.isEqualTo(company1));
+
+    assert.isTrue(company2.isEqualTo({
+      name: 'Cool Ltd',
+      boss: {
+        name: 'Jaques Dupont'
+      }
+    }));
   });
 
   it('should handle specialization and mutation', function() {

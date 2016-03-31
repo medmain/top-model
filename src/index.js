@@ -3,6 +3,7 @@
 import util from 'util';
 import { EventEmitterMixin } from 'event-emitter-mixin';
 import { customClone } from 'better-clone';
+import isEqual from 'lodash.isequal';
 import Field from './field';
 import { Validation, validator } from './validation';
 
@@ -140,6 +141,12 @@ export class TopModel extends Validation(EventEmitterMixin()) {
 
   toJSON() {
     return this.serialize();
+  }
+
+  isEqualTo(other) {
+    if (this === other) return true;
+    if (other != null && typeof other.toJSON === 'function') other = other.toJSON();
+    return isEqual(this.serialize(), other);
   }
 
   specialize(klass, strict) {
