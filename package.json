@@ -22,6 +22,9 @@
   "author": "Manuel Vila <mvila@3base.com>",
   "license": "MIT",
   "promote": true,
+  "files": [
+    "lib"
+  ],
   "main": "lib/index.js",
   "repository": {
     "type": "git",
