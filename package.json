@@ -1,6 +1,6 @@
 {
   "name": "top-model",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Base class providing typed properties, validation and serialization",
   "keywords": [
     "class",
